@@ -1,0 +1,150 @@
+{
+  "success": true,
+  "resources": [
+      {
+        "id": 1,
+        "name": "Truck 1",
+        "iconCls": "b-fa b-fa-truck",
+        "image": false
+      },
+      {
+        "id": 2,
+        "name": "Truck 2",
+        "iconCls": "b-fa b-fa-truck",
+        "image": false
+      },
+      {
+        "id": 3,
+        "name": "Truck 3",
+        "iconCls": "b-fa b-fa-truck",
+        "image": false
+      },
+      {
+        "id": 4,
+        "name": "Train 1",
+        "iconCls": "b-fa b-fa-train",
+        "image": false
+      },
+      {
+        "id": 5,
+        "name": "Train 2",
+        "iconCls": "b-fa b-fa-train",
+        "image": false
+      }
+  ]
+  ,
+  "events": [
+      {
+        "id": 1,
+        "name": "Arrive",
+        "startDate": "2022-03-23T03:00",
+        "endDate": "2022-03-23T05:00",
+        "duration": 2,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-arrow-right",
+        "eventColor": "blue",
+        "resourceId": 1
+      },
+      {
+        "id": 2,
+        "name": "Unload",
+        "startDate": "2022-03-23T05:00",
+        "endDate": "2022-03-23T08:00",
+        "duration": 3,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-snowplow",
+        "eventColor": "orange",
+        "resourceId": 1
+      },
+      {
+        "id": 3,
+        "name": "Load",
+        "startDate": "2022-03-23T08:00",
+        "endDate": "2022-03-23T10:00",
+        "duration": 2,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-truck-loading",
+        "eventColor": "green",
+        "resourceId": 4
+      },
+      {
+        "id": 4,
+        "name": "Depart",
+        "startDate": "2022-03-23T10:00",
+        "endDate": "2022-03-23T11:30",
+        "duration": 1.5,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-arrow-right",
+        "cls": "depart",
+        "eventColor": "blue",
+        "resourceId": 4
+      },
+      {
+        "id": 5,
+        "name": "Arrive",
+        "startDate": "2022-03-23T07:00",
+        "endDate": "2022-03-23T09:00",
+        "duration": 2,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-arrow-right",
+        "eventColor": "blue",
+        "resourceId": 2
+      },
+      {
+        "id": 6,
+        "name": "Unload",
+        "startDate": "2022-03-23T09:00",
+        "endDate": "2022-03-23T10:30",
+        "duration": 1.5,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-snowplow",
+        "eventColor": "orange",
+        "resourceId": 2
+      },
+      {
+        "id": 7,
+        "name": "Load",
+        "startDate": "2022-03-23T10:30",
+        "endDate": "2022-03-23T12:00",
+        "duration": 1.5,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-truck-loading",
+        "eventColor": "green",
+        "resourceId": 3
+      },
+      {
+        "id": 8,
+        "name": "Depart",
+        "startDate": "2022-03-23T12:00",
+        "endDate": "2022-03-23T14:00",
+        "duration": 2,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-arrow-right",
+        "cls": "depart",
+        "eventColor": "blue",
+        "resourceId": 3
+      },
+      {
+        "id": 9,
+        "name": "Yearly maintenance",
+        "startDate": "2022-03-23T03:00",
+        "endDate": "2022-03-23T08:00",
+        "duration": 5,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-wrench",
+        "eventColor": "gray",
+        "resourceId": 5
+      },
+      {
+        "id": 10,
+        "name": "Arrive",
+        "startDate": "2022-03-23T01:00",
+        "endDate": "2022-03-23T02:30",
+        "duration": 1.5,
+        "durationUnit": "hour",
+        "iconCls": "b-fa b-fa-arrow-right",
+        "eventColor": "blue",
+        "resourceId": 5
+      }
+  ]
+}
