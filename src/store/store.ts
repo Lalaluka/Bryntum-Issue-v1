@@ -5,6 +5,7 @@ const store = configureStore({
     reducer: {
         data: dataReducer,
     },
+    // Simplified - let Redux handle serialization normally
 });
 
 export type RootState = ReturnType<typeof store.getState>;
