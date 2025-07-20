@@ -126,47 +126,6 @@ const EventChangeManager: React.FC<EventChangeManagerProps> = ({ schedulerproRef
         }
     }, [schedulerproRef, handleEventDragStart, handleAfterEventDrop]);
 
-    useEffect(() => {
-        const scheduler = schedulerproRef.current?.instance;
-        console.log('UseEffect triggered - Scheduler available:', !!scheduler);
-        console.log('Events length:', events.length);
-        console.log('Assignments length:', assignments.length);
-        
-        if (scheduler) {
-            // Get Bryntum events store data
-            const bryntumEvents = scheduler.eventStore.records || scheduler.eventStore.data;
-            console.log('Bryntum events found:', bryntumEvents?.length || 0);
-            
-            console.log('=== State Comparison ===');
-            console.log('Redux Events:', events);
-            console.log('Redux Assignments:', assignments);
-            console.log('Bryntum Events:', bryntumEvents);
-            console.log('Bryntum Event Store Raw:', scheduler.eventStore);
-            console.log('Bryntum Internal _events:', scheduler._events);
-            
-            // Compare first event if available
-            if (events.length > 0 && bryntumEvents && bryntumEvents.length > 0) {
-                const reduxEvent = events[0];
-                const bryntumEvent = bryntumEvents[0];
-                
-                console.log('=== First Event Comparison ===');
-                console.log('Redux Event 1:', {
-                    id: reduxEvent.id,
-                    name: reduxEvent.name,
-                    startDate: reduxEvent.startDate,
-                    endDate: reduxEvent.endDate
-                });
-                console.log('Bryntum Event 1:', {
-                    id: bryntumEvent.id,
-                    name: bryntumEvent.name,
-                    startDate: bryntumEvent.startDate,
-                    endDate: bryntumEvent.endDate,
-                    resourceId: bryntumEvent.resourceId
-                });
-            }
-        }
-    }, [assignments, events, schedulerproRef.current]);
-
     return (
         <>
             {/* Pending change indicator */}
@@ -195,9 +154,25 @@ const EventChangeManager: React.FC<EventChangeManagerProps> = ({ schedulerproRef
                     <strong>BryntumState Event 1:</strong> 
                     {schedulerproRef.current?.instance?.eventStore?.records?.[0] ? (
                         <>
-                            Start: {formatDateToOriginal(schedulerproRef.current.instance.eventStore.records[0].startDate)} 
-                            End: {formatDateToOriginal(schedulerproRef.current.instance.eventStore.records[0].endDate)} 
-                            Resource: {schedulerproRef.current.instance.eventStore.records[0].resourceId || 'None'}
+                            {(() => {
+                                const eventStore = schedulerproRef.current.instance.eventStore.records;
+                                const event = eventStore.find((e: any) => e.id === 1);
+                                if (!event) return 'Event 1 not found';
+                                return (
+                                    <>
+                                        Start: {formatDateToOriginal(event.startDate)} 
+                                        End: {formatDateToOriginal(event.endDate)} 
+                                        Resource: {(() => {
+                                            const assignmentStore = schedulerproRef.current.instance._assignmentStore;
+                                            if (assignmentStore && assignmentStore._data && assignmentStore._data.length > 0) {
+                                                const assignment = assignmentStore._data.find((a: any) => a.eventId === 1);
+                                                return assignment ? assignment.resourceId : 'None';
+                                            }
+                                            return 'None';
+                                        })()}
+                                    </>
+                                );
+                            })()}
                         </>
                     ) : 'Loading...'}
                 </div>  
