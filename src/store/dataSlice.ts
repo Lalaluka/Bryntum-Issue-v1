@@ -37,7 +37,6 @@ interface DataState {
     } | null;
 }
 
-// Async thunk for fetching data
 export const fetchData = createAsyncThunk(
     'data/fetchData',
     async () => {
@@ -60,44 +59,6 @@ const dataSlice = createSlice({
     name: 'data',
     initialState,
     reducers: {
-        setData(state, action: PayloadAction<{ events: Event[]; resources: Resource[]; assignments: Assignment[] }>) {
-            console.log(action.payload)
-            state.events = action.payload.events;
-            state.resources = action.payload.resources;
-            state.assignments = action.payload.assignments;
-        },
-        updateEvent(state, action: PayloadAction<{ id: number; updates: Partial<Event> }>) {
-            const { id, updates } = action.payload;
-            console.log('Redux: updateEvent called with:', { id, updates });
-            console.log('Redux: Current events before update:', state.events);
-            
-            const eventIndex = state.events.findIndex(event => event.id === id);
-            console.log('Redux: Found event at index:', eventIndex);
-            // Create a new event object with the updates
-            state.events[eventIndex] = {
-                ...state.events[eventIndex],
-                ...updates
-            };
-            console.log('Redux: Event after update:', state.events[eventIndex]);
-            // Increment counter to force re-render
-            state.updateCounter += 1;
-            console.log('Redux: Update counter:', state.updateCounter);
-        },
-        updateEventAssignment(state, action: PayloadAction<{ eventId: number; resourceId: number }>) {
-            const { eventId, resourceId } = action.payload;
-            console.log('Redux: updateEventAssignment called with:', { eventId, resourceId });
-            console.log('Redux: Current assignments before update:', state.assignments);
-            
-            // Remove existing assignment for this event
-            state.assignments = state.assignments.filter(assignment => assignment.eventId !== eventId);
-            // Add new assignment
-            state.assignments.push({ eventId, resourceId });
-            // Increment counter to force re-render
-            state.updateCounter += 1;
-            
-            console.log('Redux: Assignments after update:', state.assignments);
-            console.log('Redux: Update counter:', state.updateCounter);
-        },
         startPendingChange(state, action: PayloadAction<{ 
             eventId: number; 
             originalEvent: Partial<Event>; 
@@ -175,6 +136,7 @@ const dataSlice = createSlice({
             .addCase(fetchData.fulfilled, (state, action) => {
                 state.loading = false;
                 // Remove resourceId from events since we're using assignments
+                // Redux throws runtime error if we don't do this ?
                 const eventsWithoutResourceId = action.payload.events.map((event: any) => {
                     const { resourceId, ...eventWithoutResourceId } = event;
                     return eventWithoutResourceId;
@@ -191,5 +153,5 @@ const dataSlice = createSlice({
     },
 });
 
-export const { setData, updateEvent, updateEventAssignment, startPendingChange, acceptPendingChange, rejectPendingChange } = dataSlice.actions;
+export const { startPendingChange, acceptPendingChange, rejectPendingChange } = dataSlice.actions;
 export default dataSlice.reducer;

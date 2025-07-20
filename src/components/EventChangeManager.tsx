@@ -94,7 +94,7 @@ const EventChangeManager: React.FC<EventChangeManagerProps> = ({ schedulerproRef
             resourceName: newResourceName
         };
         
-        // Start pending change immediately
+        // Start pending change
         dispatch(startPendingChange({
             eventId: eventRecord.id,
             originalEvent: {
@@ -138,13 +138,6 @@ const EventChangeManager: React.FC<EventChangeManagerProps> = ({ schedulerproRef
             // Add event listeners
             scheduler.on('eventdragstart', handleEventDragStart);
             scheduler.on('aftereventdrop', handleAfterEventDrop);
-            
-            // Note: Cleanup commented out due to Bryntum API inconsistencies
-            // The component will automatically clean up when unmounted
-            // return () => {
-            //     scheduler.removeListener('eventdragstart', handleEventDragStart);
-            //     scheduler.removeListener('aftereventdrop', handleAfterEventDrop);
-            // };
         }
     }, [schedulerproRef, handleEventDragStart, handleAfterEventDrop]);
 
