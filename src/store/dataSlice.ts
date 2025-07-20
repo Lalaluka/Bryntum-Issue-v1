@@ -9,7 +9,6 @@ interface Event {
     durationUnit: string;
     iconCls: string;
     eventColor: string;
-    // Removed resourceId since we're using assignments
 }
 
 interface Resource {
@@ -31,6 +30,11 @@ interface DataState {
     loading: boolean;
     error: string | null;
     updateCounter: number; // Add a counter to force re-renders
+    pendingChange: {
+        eventId: number;
+        originalEvent: Partial<Event>;
+        originalAssignment?: Assignment;
+    } | null;
 }
 
 // Async thunk for fetching data
@@ -38,11 +42,7 @@ export const fetchData = createAsyncThunk(
     'data/fetchData',
     async () => {
         const response = await fetch('/data.json');
-        if (!response.ok) {
-            throw new Error('Failed to fetch data');
-        }
-        const jsonData = await response.json();
-        return jsonData;
+        return response.json();
     }
 );
 
@@ -53,6 +53,7 @@ const initialState: DataState = {
     loading: false,
     error: null,
     updateCounter: 0,
+    pendingChange: null,
 };
 
 const dataSlice = createSlice({
@@ -72,27 +73,15 @@ const dataSlice = createSlice({
             
             const eventIndex = state.events.findIndex(event => event.id === id);
             console.log('Redux: Found event at index:', eventIndex);
-            
-            if (eventIndex !== -1) {
-                // Create a new event object with the updates
-                state.events[eventIndex] = {
-                    ...state.events[eventIndex],
-                    ...updates
-                };
-                console.log('Redux: Event after update:', state.events[eventIndex]);
-                // Increment counter to force re-render
-                state.updateCounter += 1;
-                console.log('Redux: Update counter:', state.updateCounter);
-            } else {
-                console.log('Redux: Event not found with id:', id);
-            }
-        },
-        updateSingleEventProperty(state, action: PayloadAction<{ id: number; property: keyof Event; value: any }>) {
-            const { id, property, value } = action.payload;
-            const eventIndex = state.events.findIndex(event => event.id === id);
-            if (eventIndex !== -1) {
-                (state.events[eventIndex] as any)[property] = value;
-            }
+            // Create a new event object with the updates
+            state.events[eventIndex] = {
+                ...state.events[eventIndex],
+                ...updates
+            };
+            console.log('Redux: Event after update:', state.events[eventIndex]);
+            // Increment counter to force re-render
+            state.updateCounter += 1;
+            console.log('Redux: Update counter:', state.updateCounter);
         },
         updateEventAssignment(state, action: PayloadAction<{ eventId: number; resourceId: number }>) {
             const { eventId, resourceId } = action.payload;
@@ -108,6 +97,73 @@ const dataSlice = createSlice({
             
             console.log('Redux: Assignments after update:', state.assignments);
             console.log('Redux: Update counter:', state.updateCounter);
+        },
+        startPendingChange(state, action: PayloadAction<{ 
+            eventId: number; 
+            originalEvent: Partial<Event>; 
+            originalAssignment?: Assignment;
+            newEvent: Partial<Event>;
+            newAssignment?: { eventId: number; resourceId: number };
+        }>) {
+            const { eventId, originalEvent, originalAssignment, newEvent, newAssignment } = action.payload;
+            console.log('Redux: startPendingChange called with:', action.payload);
+            
+            // Store the original data for potential rollback
+            state.pendingChange = {
+                eventId,
+                originalEvent,
+                originalAssignment
+            };
+            
+            // Apply the changes immediately
+            const eventIndex = state.events.findIndex(event => event.id === eventId);
+            if (eventIndex !== -1) {
+                state.events[eventIndex] = {
+                    ...state.events[eventIndex],
+                    ...newEvent
+                };
+            }
+            
+            // Update assignment if provided
+            if (newAssignment) {
+                state.assignments = state.assignments.filter(assignment => assignment.eventId !== eventId);
+                state.assignments.push({ eventId: newAssignment.eventId, resourceId: newAssignment.resourceId });
+            }
+            
+            state.updateCounter += 1;
+            console.log('Redux: Pending change started');
+        },
+        acceptPendingChange(state) {
+            console.log('Redux: acceptPendingChange called');
+            // Clear pending change - changes are already applied
+            state.pendingChange = null;
+            state.updateCounter += 1;
+            console.log('Redux: Pending change accepted');
+        },
+        rejectPendingChange(state) {
+            console.log('Redux: rejectPendingChange called');
+            if (state.pendingChange) {
+                const { eventId, originalEvent, originalAssignment } = state.pendingChange;
+                
+                // Revert event changes
+                const eventIndex = state.events.findIndex(event => event.id === eventId);
+                if (eventIndex !== -1) {
+                    state.events[eventIndex] = {
+                        ...state.events[eventIndex],
+                        ...originalEvent
+                    };
+                }
+                
+                // Revert assignment changes
+                if (originalAssignment) {
+                    state.assignments = state.assignments.filter(assignment => assignment.eventId !== eventId);
+                    state.assignments.push(originalAssignment);
+                }
+                
+                state.pendingChange = null;
+                state.updateCounter += 1;
+                console.log('Redux: Pending change rejected and reverted');
+            }
         },
     },
     extraReducers: (builder) => {
@@ -135,5 +191,5 @@ const dataSlice = createSlice({
     },
 });
 
-export const { setData, updateEvent, updateSingleEventProperty, updateEventAssignment } = dataSlice.actions;
+export const { setData, updateEvent, updateEventAssignment, startPendingChange, acceptPendingChange, rejectPendingChange } = dataSlice.actions;
 export default dataSlice.reducer;

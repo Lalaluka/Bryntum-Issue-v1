@@ -1,7 +1,49 @@
 // import bryntum theme
 @import "@bryntum/schedulerpro/schedulerpro.stockholm.css";
 
+// Reset default styles and give full height
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 // Giving our schedulerpro some height
 #root {
   height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.App {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.App h1 {
+  margin: 10px 0;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+// Make the scheduler take up the remaining space
+.App .b-schedulerpro {
+  flex: 1;
+  min-height: 0; // Important for flexbox children
+}
+
+// Ensure the Bryntum container takes full height
+.b-schedulerpro {
+  height: 100% !important;
 }
