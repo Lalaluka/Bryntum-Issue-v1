@@ -17,6 +17,7 @@ const dataSlice = createSlice({
     initialState,
     reducers: {
         setData(state, action: PayloadAction<DataState>) {
+            console.log(action.payload)
             state.events = action.payload.events;
             state.resources = action.payload.resources;
             state.assignments = action.payload.assignments;

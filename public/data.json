@@ -31,6 +31,16 @@
         "iconCls": "b-fa b-fa-train",
         "image": false
       }
+  ],
+  "assignments": [
+    {
+      "eventId": 1,
+      "resourceId": 1
+    },
+    {
+      "eventId": 2,
+      "resourceId": 1
+    }
   ]
   ,
   "events": [

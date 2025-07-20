@@ -21,16 +21,53 @@ interface Resource {
     image: boolean;
 }
 
+interface Assignment {
+    resourceId: number;
+    eventId: number;
+}   
+
+
 
 const App: FunctionComponent = () => {
     const schedulerpro = useRef<BryntumSchedulerPro>(null);
     const [data, setData] = useState<{
         events: Event[];
         resources: Resource[];
+        assignments: Assignment[];
     }>({
         events: [],
         resources: [],
+        assignments: [],
     });
+
+    const handleEventDragStart = (event: any) => {
+        // Store the original event data before drag
+        const eventRecord = event.eventRecords?.[0] || event.eventRecord;
+        if (eventRecord) {
+            event.context = event.context || {};
+            event.context.originalStartDate = eventRecord.startDate;
+            event.context.originalEndDate = eventRecord.endDate;
+            event.context.originalResourceId = eventRecord.resourceId;
+        }
+    };
+
+    const handleEventDrop = async (event: any) => {
+        const eventRecord = event.eventRecords?.[0] || event.eventRecord;
+        if (!eventRecord) return;
+        
+        const confirmed = window.confirm(
+            `Do you want to move "${eventRecord.name}" to this new position?`
+        );
+
+        if (!confirmed && event.context) {
+            // Revert the changes if user cancels
+            eventRecord.set({
+                startDate: event.context.originalStartDate,
+                endDate: event.context.originalEndDate,
+                resourceId: event.context.originalResourceId
+            });
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -43,6 +80,7 @@ const App: FunctionComponent = () => {
                 setData({
                     events: jsonData.events,
                     resources: jsonData.resources,
+                    assignments: jsonData.assignments,
                 });
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -58,8 +96,11 @@ const App: FunctionComponent = () => {
                     {...schedulerproProps}
                     events={data.events}
                     resources={data.resources}
+                    assignments={data.assignments}
                     // when activating the nested events feature no assignments are shown on the gantt anymore
-                    // nestedEventsFeature={true}
+                    nestedEventsFeature
+                    onEventDragStart={handleEventDragStart}
+                    onEventDrop={handleEventDrop}
                 />
     );
 };
