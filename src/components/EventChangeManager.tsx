@@ -9,7 +9,7 @@ interface EventChangeManagerProps {
 
 const EventChangeManager: React.FC<EventChangeManagerProps> = ({ schedulerproRef }) => {
     const dispatch = useDispatch();
-    const { resources, assignments, pendingChange } = useSelector((state: any) => state.data);
+    const { events, resources, assignments, pendingChange } = useSelector((state: any) => state.data);
     
     const [modalData, setModalData] = useState<{
         isOpen: boolean;
@@ -126,6 +126,47 @@ const EventChangeManager: React.FC<EventChangeManagerProps> = ({ schedulerproRef
         }
     }, [schedulerproRef, handleEventDragStart, handleAfterEventDrop]);
 
+    useEffect(() => {
+        const scheduler = schedulerproRef.current?.instance;
+        console.log('UseEffect triggered - Scheduler available:', !!scheduler);
+        console.log('Events length:', events.length);
+        console.log('Assignments length:', assignments.length);
+        
+        if (scheduler) {
+            // Get Bryntum events store data
+            const bryntumEvents = scheduler.eventStore.records || scheduler.eventStore.data;
+            console.log('Bryntum events found:', bryntumEvents?.length || 0);
+            
+            console.log('=== State Comparison ===');
+            console.log('Redux Events:', events);
+            console.log('Redux Assignments:', assignments);
+            console.log('Bryntum Events:', bryntumEvents);
+            console.log('Bryntum Event Store Raw:', scheduler.eventStore);
+            console.log('Bryntum Internal _events:', scheduler._events);
+            
+            // Compare first event if available
+            if (events.length > 0 && bryntumEvents && bryntumEvents.length > 0) {
+                const reduxEvent = events[0];
+                const bryntumEvent = bryntumEvents[0];
+                
+                console.log('=== First Event Comparison ===');
+                console.log('Redux Event 1:', {
+                    id: reduxEvent.id,
+                    name: reduxEvent.name,
+                    startDate: reduxEvent.startDate,
+                    endDate: reduxEvent.endDate
+                });
+                console.log('Bryntum Event 1:', {
+                    id: bryntumEvent.id,
+                    name: bryntumEvent.name,
+                    startDate: bryntumEvent.startDate,
+                    endDate: bryntumEvent.endDate,
+                    resourceId: bryntumEvent.resourceId
+                });
+            }
+        }
+    }, [assignments, events, schedulerproRef.current]);
+
     return (
         <>
             {/* Pending change indicator */}
@@ -140,6 +181,27 @@ const EventChangeManager: React.FC<EventChangeManagerProps> = ({ schedulerproRef
                     <strong>⏳ Pending Change:</strong> Event {pendingChange.eventId} has unsaved changes
                 </div>
             )}
+
+            {/* Bryntum Redux Desync indicator */}
+            {events.length > 0 && (
+                <div style={{ 
+                    marginTop: '10px', 
+                    padding: '10px', 
+                    backgroundColor: '#cdffd0ff', 
+                    border: '1px solid #a7ffc6ff',
+                    borderRadius: '4px'
+                }}>
+                    <strong>ReduxState Event 1:</strong> Start: {events[0].startDate} End: {events[0].endDate} Resource: {assignments.find((a: any) => a.eventId === events[0].id)?.resourceId || 'None'} <br />
+                    <strong>BryntumState Event 1:</strong> 
+                    {schedulerproRef.current?.instance?.eventStore?.records?.[0] ? (
+                        <>
+                            Start: {formatDateToOriginal(schedulerproRef.current.instance.eventStore.records[0].startDate)} 
+                            End: {formatDateToOriginal(schedulerproRef.current.instance.eventStore.records[0].endDate)} 
+                            Resource: {schedulerproRef.current.instance.eventStore.records[0].resourceId || 'None'}
+                        </>
+                    ) : 'Loading...'}
+                </div>  
+            )}  
 
             {/* Change confirmation modal */}
             <ChangeConfirmationModal
